@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 #include "devcpp/log/Sink.hpp"
@@ -11,8 +12,6 @@
 
 namespace devcpp {
 namespace log {
-
-constexpr size_t kBufferSize = 255UL;
 
 enum class LogLevel : uint16_t {
   kTrace = 0U,  // Default
@@ -26,7 +25,19 @@ enum class LogLevel : uint16_t {
 
 class Journal : public types::NonCopyable {
  public:
+  ~Journal() {
+    for (const auto& sink : m_sinks) {
+      sink->write(m_ss.str());
+      sink->flush();
+    }
+  }
   void registerSink(std::unique_ptr<ISink>&& sink);
+
+  template <typename T>
+  friend Journal& operator<<(Journal& journal, const T& data) {
+    journal.m_ss << data << '\n';
+    return journal;
+  }
 
  private:
   bool shouldLog(LogLevel lvl) const;
@@ -36,7 +47,7 @@ class Journal : public types::NonCopyable {
    */
   bool shouldFlush(LogLevel lvl) const;
 
-  std::vector<std::string> m_buffer{kBufferSize};
+  std::ostringstream m_ss{};
   std::vector<std::unique_ptr<ISink>> m_sinks{};
   LogLevel m_logLevel{LogLevel::kTrace};
 };

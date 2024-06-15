@@ -12,7 +12,8 @@ namespace log {
 
 class ISink : public types::NonCopyable {
  public:
-  virtual void write(const std::string&) {};
+  virtual void write(const std::string&) {
+  };
   virtual void flush() {};
 };
 
@@ -26,7 +27,7 @@ class SinkImpl : public ISink {
  public:
   SinkImpl(StreamType& stream) : m_stream(stream) {}
 
-  void write(const std::string& msg) override { m_stream << msg << '\n'; }
+  void write(const std::string& msg) override { m_stream << msg; }
   void flush() override { m_stream.flush(); }
 
  private:
