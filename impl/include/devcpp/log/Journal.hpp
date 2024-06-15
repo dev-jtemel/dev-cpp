@@ -12,6 +12,8 @@
 namespace devcpp {
 namespace log {
 
+constexpr size_t kBufferSize = 255UL;
+
 enum class LogLevel : uint16_t {
   kTrace = 0U,  // Default
   kDebug = 1U,
@@ -24,7 +26,7 @@ enum class LogLevel : uint16_t {
 
 class Journal : public types::NonCopyable {
  public:
-  void registerSink(const std::unique_ptr<Sink>&& sink);
+  void registerSink(std::unique_ptr<ISink>&& sink);
 
  private:
   bool shouldLog(LogLevel lvl) const;
@@ -34,7 +36,8 @@ class Journal : public types::NonCopyable {
    */
   bool shouldFlush(LogLevel lvl) const;
 
-  std::vector<std::unique_ptr<Sink>> m_sinks{};
+  std::vector<std::string> m_buffer{kBufferSize};
+  std::vector<std::unique_ptr<ISink>> m_sinks{};
   LogLevel m_logLevel{LogLevel::kTrace};
 };
 
