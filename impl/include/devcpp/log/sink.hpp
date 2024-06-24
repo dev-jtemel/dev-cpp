@@ -5,12 +5,12 @@
 #include <iostream>
 #include <type_traits>
 
-#include "devcpp/types/ClassTypes.hpp"
+#include "devcpp/types/class_types.hpp"
 
 namespace devcpp {
 namespace log {
 
-class ISink : public types::NonCopyable {
+class sink : public types::non_copyable {
  public:
   virtual void write(const std::string&) {
   };
@@ -18,20 +18,20 @@ class ISink : public types::NonCopyable {
 };
 
 template <typename STREAM_TYPE>
-class SinkImpl : public ISink {
-  using StreamType = STREAM_TYPE;
+class sink_impl : public sink {
+  using stream_type = STREAM_TYPE;
 
-  static_assert(std::is_base_of_v<StreamType, std::ostream>,
+  static_assert(std::is_base_of_v<stream_type, std::ostream>,
                 "STREAM_TYPE must be derived from std::ostream");
 
  public:
-  SinkImpl(StreamType& stream) : m_stream(stream) {}
+  sink_impl(stream_type& stream) : m_stream(stream) {}
 
   void write(const std::string& msg) override { m_stream << msg; }
   void flush() override { m_stream.flush(); }
 
  private:
-  StreamType& m_stream;
+  stream_type& m_stream;
 };
 
 }  // namespace log

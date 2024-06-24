@@ -1,5 +1,5 @@
 add_library(devcpp_log
-  log/Journal.cpp
+  log/journal.cpp
 )
 
 target_link_libraries(devcpp_log
