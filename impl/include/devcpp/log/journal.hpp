@@ -56,24 +56,12 @@ class journal {
   journal& lock();
   void unlock();
 
-  friend journal& operator<<(journal& journal, const severity lvl) {
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  std::chrono::time_point_cast<std::chrono::milliseconds>(
-                      std::chrono::system_clock::now())
-                      .time_since_epoch())
-                  .count();
-    auto tid = std::this_thread::get_id();
-
-    journal.m_ss << "[" << ms << "] [0x" << std::hex << tid << std::dec << "] "
-                 << journal.severity_string(lvl) << " ";
-    return journal;
-  }
-
   template <typename T>
   friend journal& operator<<(journal& journal, const T& data) {
     journal.m_ss << data << '\n';
     return journal;
   }
+  friend journal& operator<<(journal& journal, const severity lvl);
 
  private:
   journal() = default;
@@ -81,11 +69,7 @@ class journal {
 
   std::string severity_string(severity lvl) const;
 
-  /**
-   * @brief Flush on kWarning or higher.
-   */
-  bool should_flush(severity lvl) const;
-
+  bool m_flush_pending{false};
   std::mutex m_lock{};
   std::ostringstream m_ss;
   std::vector<std::unique_ptr<sink>> m_sinks{};
