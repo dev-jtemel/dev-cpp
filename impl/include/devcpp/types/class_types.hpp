@@ -18,9 +18,9 @@ class non_copyable {
 };
 
 template <class C>
-class singleton : public non_copyable {
+class singleton {
  public:
-  static C& instance() {
+  static C instance() {
     static C instance;
     return instance;
   }
