@@ -16,19 +16,18 @@ journal& journal::lock() {
   return *this;
 }
 
-void journal::unlock() {
-  if (m_flush_pending) {
-    std::string fs{m_ss.str()};
-    m_ss.str("");
-    m_lock.unlock();
-    
-    m_flush_pending = false;
-    for (const auto& sink : m_sinks) {
-      sink->write(fs);
-    }
-    return;
-  }
+void journal::unlock_and_write() {
+  const std::string fs{m_ss.str()};
+  const auto flush = m_flush.exchange(false, std::memory_order_acquire);
+  m_ss.str("");
   m_lock.unlock();
+
+  for (const auto& sink : m_sinks) {
+    sink->write(fs);
+    if (flush) {
+      sink->flush();
+    }
+  }
 }
 
 void journal::register_sink(std::unique_ptr<sink>&& sink) {
@@ -44,12 +43,16 @@ journal& operator<<(journal& journal, const journal::severity lvl) {
   auto tid = std::this_thread::get_id();
 
   if (lvl >= journal::severity::warn) {
-    journal.m_flush_pending = true;
+    journal.m_flush.store(true, std::memory_order_release);
   }
 
   journal.m_ss << "[" << ms << "] [0x" << std::hex << tid << std::dec << "] "
                << journal.severity_string(lvl) << " ";
   return journal;
+}
+
+void journal::write() {
+  
 }
 
 bool journal::should_log(severity level) const { return level >= m_logLevel; }

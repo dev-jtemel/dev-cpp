@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cstdint>
 #include <iomanip>
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -18,7 +19,7 @@ namespace devcpp {
 namespace log {
 
 #define DEVCPP_INTERNAL_LOG(severity, expr) \
-  (devcpp::log::journal::instance().lock() << severity << expr).unlock()
+  (devcpp::log::journal::instance().lock() << severity << expr).unlock_and_write()
 #define DEVCPP_LOG_TRACE(expr) \
   DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::trace, expr)
 #define DEVCPP_LOG_DEBUG(expr) \
@@ -54,7 +55,7 @@ class journal {
   void register_sink(std::unique_ptr<sink>&& sink);
 
   journal& lock();
-  void unlock();
+  void unlock_and_write();
 
   template <typename T>
   friend journal& operator<<(journal& journal, const T& data) {
@@ -65,11 +66,12 @@ class journal {
 
  private:
   journal() = default;
+
   bool should_log(severity lvl) const;
-
   std::string severity_string(severity lvl) const;
+  void write();
 
-  bool m_flush_pending{false};
+  std::atomic<bool> m_flush{false};
   std::mutex m_lock{};
   std::ostringstream m_ss;
   std::vector<std::unique_ptr<sink>> m_sinks{};
