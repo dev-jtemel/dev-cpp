@@ -13,6 +13,6 @@ int main() {
   DEVCPP_LOG_WARN("warn");
   DEVCPP_LOG_ERROR("error");
   DEVCPP_LOG_FATAL("fatal");
-  
+
   return 0;
 }

@@ -1,5 +1,7 @@
 
-#include "devcpp/log/journal.hpp"
+#define DEVCPP_LOG_JOURNAL_HPP
+#include "devcpp/log/journal_impl.hpp"
+#undef DEVCPP_LOG_JOURNAL_HPP
 
 namespace devcpp {
 namespace log {
@@ -12,7 +14,7 @@ journal::~journal() {
 }
 
 journal& journal::lock() {
-  m_lock.lock();
+  m_mutex.lock();
   return *this;
 }
 
@@ -20,7 +22,7 @@ void journal::unlock_and_write() {
   const std::string fs{m_ss.str()};
   const auto flush = m_flush.exchange(false, std::memory_order_acquire);
   m_ss.str("");
-  m_lock.unlock();
+  m_mutex.unlock();
 
   for (const auto& sink : m_sinks) {
     sink->write(fs);
