@@ -1,6 +1,6 @@
 
-#ifndef DEVCPP_LOG_JOURNAL_HPP
-#define DEVCPP_LOG_JOURNAL_HPP
+#ifndef DEVCPP_INTERNAL_LOG_JOURNAL_HPP
+#define DEVCPP_INTERNAL_LOG_JOURNAL_HPP
 
 #include <chrono>
 #include <cstdint>
@@ -17,23 +17,20 @@
 namespace devcpp {
 namespace log {
 
-#define DEVCPP_LOG(SEVERITY, EXPR)                                          \
-  do {                                                                      \
-    (devcpp::log::journal::instance().lock() << SEVERITY << EXPR).unlock(); \
-  } while (0);
-
-#define DEVCPP_LOG_TRACE(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::trace, EXPR)
-#define DEVCPP_LOG_DEBUG(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::debug, EXPR)
-#define DEVCPP_LOG_INFO(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::info, EXPR)
-#define DEVCPP_LOG_WARN(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::warn, EXPR)
-#define DEVCPP_LOG_ERROR(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::error, EXPR)
-#define DEVCPP_LOG_FATAL(EXPR) \
-  DEVCPP_LOG(devcpp::log::journal::severity::fatal, EXPR)
+#define DEVCPP_INTERNAL_LOG(severity, expr) \
+  (devcpp::log::journal::instance().lock() << severity << expr).unlock()
+#define DEVCPP_LOG_TRACE(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::trace, expr)
+#define DEVCPP_LOG_DEBUG(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::debug, expr)
+#define DEVCPP_LOG_INFO(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::info, expr)
+#define DEVCPP_LOG_WARN(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::warn, expr)
+#define DEVCPP_LOG_ERROR(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::error, expr)
+#define DEVCPP_LOG_FATAL(expr) \
+  DEVCPP_INTERNAL_LOG(devcpp::log::journal::severity::fatal, expr)
 
 class journal {
  public:
@@ -98,4 +95,4 @@ class journal {
 }  // namespace log
 }  // namespace devcpp
 
-#endif  // DEVCPP_LOG_JOURNAL_HPP
+#endif  // DEVCPP_INTERNAL_LOG_JOURNAL_HPP
