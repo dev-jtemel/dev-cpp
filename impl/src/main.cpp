@@ -1,6 +1,31 @@
 
+#include <chrono>
+#include <thread>
+#include <vector>
+
 #include "devcpp/log/journal.hpp"
 #include "devcpp/log/sink.hpp"
+#include "devcpp/thread/sync_value.hpp"
+
+const int NUM_THREADS = 100;
+const int NUM_ITERATIONS = 100;
+
+void incrementCounter(int& counter) {
+  for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    int temp = counter;
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
+    counter = temp + 1;
+  }
+}
+
+void incrementCounterSyncValue(devcpp::thread::sync_value<int>& counterSync) {
+  for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    auto counter = counterSync.sync();
+    int temp = counter();
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
+    counter() = temp + 1;
+  }
+}
 
 struct Test {
   template <typename T, typename V = bool>
@@ -33,6 +58,24 @@ int main() {
 
   Test t;
   t.log<int, std::vector<std::string>>(5.5f);
+
+  int counter = 0;
+  devcpp::thread::sync_value<int> counterSync{};
+  std::vector<std::thread> threads;
+  std::vector<std::thread> threadsSyncValue;
+  for (int i = 0; i < NUM_THREADS; ++i) {
+    threads.emplace_back(incrementCounter, std::ref(counter));
+    threads.emplace_back(incrementCounterSyncValue, std::ref(counterSync));
+  }
+
+  // Wait for all threads to finish
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  // Print the final value of the counter
+  LOG_INFO("Final counter value: " << counter);
+  LOG_INFO("Final counter value: " << counterSync.sync()());
 
   return 0;
 }
