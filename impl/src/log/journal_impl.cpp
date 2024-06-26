@@ -19,7 +19,7 @@ journal& journal::lock() {
 }
 
 void journal::unlock_and_write() {
-  const std::string fs{m_ss.str()};
+  const std::string fs{m_ss.str() + "\n"};
   const auto flush = m_flush.exchange(false, std::memory_order_acquire);
   m_ss.str("");
   m_mutex.unlock();
@@ -53,9 +53,7 @@ journal& operator<<(journal& journal, const journal::severity lvl) {
   return journal;
 }
 
-void journal::write() {
-  
-}
+void journal::write() {}
 
 bool journal::should_log(severity level) const { return level >= m_logLevel; }
 

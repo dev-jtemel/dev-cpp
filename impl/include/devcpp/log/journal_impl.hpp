@@ -51,7 +51,7 @@ class journal {
 
   template <typename T>
   friend journal& operator<<(journal& journal, const T& data) {
-    journal.m_ss << data << '\n';
+    journal.m_ss << data;
     return journal;
   }
   friend journal& operator<<(journal& journal, const severity lvl);
