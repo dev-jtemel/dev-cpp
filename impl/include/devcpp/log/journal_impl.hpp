@@ -41,7 +41,6 @@ class journal {
 
   static journal& instance() {
     static journal instance;
-    return instance;
   }
 
   ~journal();
@@ -66,9 +65,7 @@ class journal {
   DEVCPP_PRIVATE
   journal() = default;
 
-  bool should_log(severity lvl) const;
   std::string severity_string(severity lvl) const;
-  void write();
 
   std::atomic<bool> m_flush{false};
   std::mutex m_mutex{};

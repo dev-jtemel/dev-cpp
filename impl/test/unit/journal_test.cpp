@@ -63,19 +63,7 @@ TEST_F(journal_test, severityString) {
   EXPECT_EQ(log.severity_string(journal::severity::warn), "[warn ]");
   EXPECT_EQ(log.severity_string(journal::severity::error), "[error]");
   EXPECT_EQ(log.severity_string(journal::severity::fatal), "[fatal]");
-}
-
-// Test should_log based on severity
-TEST_F(journal_test, shouldLog) {
-  journal& log = journal::instance();
-  log.m_logLevel = journal::severity::info;
-
-  EXPECT_FALSE(log.should_log(journal::severity::trace));
-  EXPECT_FALSE(log.should_log(journal::severity::debug));
-  EXPECT_TRUE(log.should_log(journal::severity::info));
-  EXPECT_TRUE(log.should_log(journal::severity::warn));
-  EXPECT_TRUE(log.should_log(journal::severity::error));
-  EXPECT_TRUE(log.should_log(journal::severity::fatal));
+  EXPECT_EQ(log.severity_string(static_cast<journal::severity>(12U)), "[?????]");
 }
 
 // Test clearing the stream after write
@@ -110,15 +98,6 @@ TEST_F(journal_test, threadSafety) {
   t2.join();
 }
 
-// Test log level configuration
-TEST_F(journal_test, logLevelConfiguration) {
-  journal& log = journal::instance();
-  log.m_logLevel = journal::severity::warn;
-
-  EXPECT_FALSE(log.should_log(journal::severity::info));
-  EXPECT_TRUE(log.should_log(journal::severity::warn));
-}
-
 // Test large messages
 TEST_F(journal_test, largeMessages) {
   // Avoid spam
@@ -151,6 +130,7 @@ TEST_F(journal_test, registerNullSink) {
   journal::instance().register_sink(nullptr);
   ASSERT_EQ(journal::instance().m_sinks.size(), 2);
 }
+
 
 }  // namespace test
 }  // namespace log

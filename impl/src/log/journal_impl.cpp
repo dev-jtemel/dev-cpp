@@ -53,10 +53,6 @@ journal& operator<<(journal& journal, const journal::severity lvl) {
   return journal;
 }
 
-void journal::write() {}
-
-bool journal::should_log(severity level) const { return level >= m_logLevel; }
-
 std::string journal::severity_string(severity lvl) const {
   switch (lvl) {
     case severity::trace:
