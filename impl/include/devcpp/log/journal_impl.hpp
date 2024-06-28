@@ -41,6 +41,7 @@ class journal {
 
   static journal& instance() {
     static journal instance;
+    return instance;
   }
 
   ~journal();
