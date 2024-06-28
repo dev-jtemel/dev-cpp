@@ -58,6 +58,12 @@
     "stop_token": "cpp",
     "thread": "cpp",
     "iomanip": "cpp",
-    "source_location": "cpp"
+    "source_location": "cpp",
+    "cstring": "cpp",
+    "any": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "optional": "cpp",
+    "variant": "cpp"
   }
 }

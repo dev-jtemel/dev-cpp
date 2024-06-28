@@ -12,8 +12,7 @@ namespace log {
 
 class sink : public types::non_copyable {
  public:
-  virtual void write(const std::string&) {
-  };
+  virtual void write(const std::string&) {};
   virtual void flush() {};
 };
 

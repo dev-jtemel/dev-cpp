@@ -6,10 +6,10 @@
 #error "Do not include this file directly. Use <devcpp/log/journal.hpp>"
 #endif
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <iomanip>
-#include <atomic>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -18,12 +18,14 @@
 
 #include "devcpp/log/sink.hpp"
 #include "devcpp/types/class_types.hpp"
+#include "devcpp/types/common.hpp"
 
 namespace devcpp {
 namespace log {
 
-#define DEVCPP_INTERNAL_LOG(severity, expr) \
-  (devcpp::log::journal::instance().lock() << severity << expr).unlock_and_write()
+#define DEVCPP_INTERNAL_LOG(severity, expr)                     \
+  (devcpp::log::journal::instance().lock() << severity << expr) \
+      .unlock_and_write()
 
 class journal {
  public:
@@ -44,7 +46,12 @@ class journal {
 
   ~journal();
 
-  void register_sink(std::unique_ptr<sink>&& sink);
+  template <typename F>
+  void register_sink(F&& sink) {
+    if (sink) {
+      m_sinks.emplace_back(std::forward<F>(sink));
+    }
+  }
 
   journal& lock();
   void unlock_and_write();
@@ -56,7 +63,7 @@ class journal {
   }
   friend journal& operator<<(journal& journal, const severity lvl);
 
- private:
+  DEVCPP_PRIVATE
   journal() = default;
 
   bool should_log(severity lvl) const;
@@ -66,7 +73,7 @@ class journal {
   std::atomic<bool> m_flush{false};
   std::mutex m_mutex{};
   std::ostringstream m_ss;
-  std::vector<std::unique_ptr<sink>> m_sinks{};
+  std::vector<std::shared_ptr<sink>> m_sinks{};
   severity m_logLevel{severity::trace};
 };
 

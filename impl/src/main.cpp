@@ -46,7 +46,7 @@ struct Test {
 
 int main() {
   auto& instance = devcpp::log::journal::instance();
-  instance.register_sink(std::make_unique<devcpp::log::sink_impl<std::ostream>>(
+  instance.register_sink(std::make_shared<devcpp::log::sink_impl<std::ostream>>(
       devcpp::log::sink_impl<std::ostream>(std::cout)));
 
   LOG_TRACE("trace");

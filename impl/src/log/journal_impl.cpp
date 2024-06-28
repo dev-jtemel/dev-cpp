@@ -7,6 +7,10 @@ namespace devcpp {
 namespace log {
 
 journal::~journal() {
+  if (m_ss.str().empty()) {
+    return;
+  }
+
   for (const auto& sink : m_sinks) {
     sink->write(m_ss.str());
     sink->flush();
@@ -30,10 +34,6 @@ void journal::unlock_and_write() {
       sink->flush();
     }
   }
-}
-
-void journal::register_sink(std::unique_ptr<sink>&& sink) {
-  m_sinks.emplace_back(std::move(sink));
 }
 
 journal& operator<<(journal& journal, const journal::severity lvl) {
